@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <!--Attention le slash de fin est important pour les vielles versions de thymeleaf affin qu'il soit valide-->
+    <title>Spring-Boot-Learning</title>
+</head>
+<body>
+  <h1 th:text="'Hello ' + ${#strings.capitalize(name)} + '!'">Hello World!</h1>
+<!--Hello World par défaut sert au cas où si on ouvre la page html sans thymeleaf, sans rien-->
+</body>
+</html>
