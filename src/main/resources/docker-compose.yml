@@ -1,0 +1,28 @@
+version: "3.1"
+
+services:
+
+  db:
+    container_name: maria-db
+    image: mariadb
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+  # serveur en local permettant de simuler une boîte mail :
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      # interface web :
+      - "5000:80"
+      # serveur SMTP :
+      - "25:25"
