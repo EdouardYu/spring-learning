@@ -10,7 +10,7 @@ CREATE TABLE user (
     password VARCHAR(255) NOT NULL,
     username VARCHAR(15) UNIQUE NOT NULL,
     email VARCHAR(127) UNIQUE NOT NULL,
-    enable BOOLEAN NOT NULL DEFAULT false,
+    enabled BOOLEAN NOT NULL DEFAULT FALSE,
     role_id INTEGER NOT NULL,
     CONSTRAINT role_fk FOREIGN KEY (role_id) REFERENCES role(id)
 );
@@ -22,7 +22,7 @@ CREATE TABLE validation (
     activated_at TIMESTAMP,
     activation_code CHARACTER(6) NOT NULL,
     user_id INTEGER NOT NULL,
-    CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES user(id)
+    CONSTRAINT validation_user_fk FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
 CREATE TABLE post (
@@ -32,5 +32,14 @@ CREATE TABLE post (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_update TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
     user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    CONSTRAINT post_user_fk FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+CREATE TABLE jwt (
+    id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    value VARCHAR(255) NOT NULL,
+    deactivated BOOLEAN NOT NULL DEFAULT FALSE,
+    expired BOOLEAN NOT NULL DEFAULT FALSE,
+    user_id INTEGER NOT NULL,
+    CONSTRAINT jwt_user_fk FOREIGN KEY (user_id) REFERENCES user(id)
 );
