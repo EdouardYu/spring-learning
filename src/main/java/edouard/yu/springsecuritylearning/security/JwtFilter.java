@@ -1,5 +1,6 @@
 package edouard.yu.springsecuritylearning.security;
 
+import edouard.yu.springsecuritylearning.entity.Jwt;
 import edouard.yu.springsecuritylearning.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable FilterChain filterChain) throws ServletException, IOException {
         String token;
+        Jwt dbJwt = null;
         String email = null;
         boolean isTokenExpired = true;
 
@@ -31,14 +33,21 @@ public class JwtFilter extends OncePerRequestFilter {
         final String authorization = request.getHeader("Authorization");
         if(authorization != null && authorization.startsWith("Bearer ")) {
             token = authorization.substring(7);
+            dbJwt = this.jwtService.findTokenByValue(token);
             isTokenExpired = this.jwtService.isTokenExpired(token);
             email = this.jwtService.extractEmail(token);
         }
 
-        // Si le token JWT n'a pas expiré, qu'on trouve bien un email dans les claims du token et qu'il n'y a pas encore de contexte de sécurité,
+        // Si le token JWT n'a pas expiré,
+        // qu'on trouve bien un email dans les claims du token et qu'il concorde avec le token dans la bdd
+        // et qu'il n'y a pas encore de contexte de sécurité,
         // c'est-à-dire qu'il n'y a encore personne d'authentifié pour le moment
         // On va pouvoir dire à spring security qu'on va utiliser les informations du token pour authentifier l'utilisateur (en occurrence l'email ici)
-        if(!isTokenExpired && email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if(
+                !isTokenExpired
+                && dbJwt.getUser().getEmail().equals(email)
+                && SecurityContextHolder.getContext().getAuthentication() == null
+        ) {
             UserDetails userDetails = this.userService.loadUserByUsername(email);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken); // on passe le token d'authentification à spring security (dans le contexte de sécurité)

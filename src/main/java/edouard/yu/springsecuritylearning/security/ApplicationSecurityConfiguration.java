@@ -46,6 +46,7 @@ public class ApplicationSecurityConfiguration /* extends WebSecurityConfiguratio
                                 .requestMatchers(HttpMethod.POST, "/signup").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/activate").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/signin").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/token/refresh").permitAll()
                                 .anyRequest().authenticated()
                 ).sessionManagement(httpSecuritySessionManagementConfigurer -> // Comme spring security fonctionne par session,
                          // on ajoute une session qu'on va configurer afin de pouvoir s'en servir pour authentifier, à notre manière, l'utilisateur afin qu'il puisse accéder aux autres endpoints

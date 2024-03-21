@@ -1,32 +1,93 @@
 package edouard.yu.springsecuritylearning.security;
 
+import edouard.yu.springsecuritylearning.entity.Jwt;
+import edouard.yu.springsecuritylearning.entity.RefreshToken;
 import edouard.yu.springsecuritylearning.entity.User;
+import edouard.yu.springsecuritylearning.repository.JwtRepository;
 import edouard.yu.springsecuritylearning.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
+@Slf4j
+@Transactional
 @RequiredArgsConstructor // génère un constructeur avec les attributs ayant le champ final ou ayant l'annotation @NonNull
 @Service
 public class JwtService {
+    public static final String BEARER = "bearer";
+    public static final String REFRESH = "refresh";
     private final UserService userService;
     @Value("${encryption.key}")
     private String ENCRYPTION_KEY;
+    private final JwtRepository jwtRepository;
+
+    public Jwt findTokenByValue(String token) {
+        return this.jwtRepository.findByValueAndExpiredAndDeactivated(
+                token,
+                false,
+                false
+        ).orElseThrow(() -> new RuntimeException("Invalid or unknown token"));
+    }
 
     // méthode permettant de retourner le token JWT à l'utilisateur quand il fait une requête /signin
     public Map<String, String> generate(String email) {
         User user = this.userService.loadUserByUsername(email);
+        // On passe tous les tokens présents dans la bdd au statut expiré et désactivé :
+        this.disableTokens(user);
+
+        // On génère un nouveau token
         // rem : on peut vérifier les informations du token JWT sur : https://jwt.io/
-        return this.generateJwt(user);
+        final Map<String, String> jwtMap = new java.util.HashMap<>(this.generateJwt(user));
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .expired(false)
+                .value(UUID.randomUUID().toString()) // génère une valeur random
+                .createdAt(Instant.now())
+                .expiredAt(Instant.now().plusMillis(4 * 60 * 60 * 1000)) // l'instant actuel + 4 heures en millisecondes
+                .build();
+
+        // Puis, on crée le nouveau token valide et activé :
+        final Jwt jwt = Jwt.builder()
+                .value(jwtMap.get(BEARER))
+                .deactivated(false)
+                .expired(false)
+                .refreshToken(refreshToken)
+                .user(user)
+                .build();
+
+        this.jwtRepository.save(jwt);
+
+        jwtMap.put(REFRESH, refreshToken.getValue());
+
+        return jwtMap;
+    }
+
+    private void disableTokens(User user) {
+        // peek est un map mais sans modification, bien pour print et set les valeurs
+        final List<Jwt> jwtList = this.jwtRepository.findUser(user.getEmail()).peek(
+                jwt -> {
+                    jwt.setExpired(true);
+                    jwt.setDeactivated(true);
+                }
+        ).toList();
+
+        this.jwtRepository.saveAll(jwtList);
     }
 
     // méthode permettant de vérifier si le token JWT a expiré
@@ -61,7 +122,7 @@ public class JwtService {
                 .signWith(this.getKey()) // la clé de chiffrement du token
                 .compact(); // permet de convertir un builder vers un string
 
-        return Map.of("bearer", bearer);
+        return Map.of(BEARER, bearer);
     }
 
     // méthode permettant de générer la clé de chiffrement/cryptage du token JWT
@@ -92,5 +153,45 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    // Cherche le token valide et activé par email, puis le met au statut expiré et désactivé
+    public void signOut() {
+        final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Jwt jwt = this.jwtRepository.findUserValideToken(
+                user.getEmail(),
+                false,
+                false
+        ).orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        jwt.setExpired(true);
+        jwt.setDeactivated(true);
+
+        this.jwtRepository.save(jwt);
+    }
+
+    // Voir https://crontab.guru/
+    // Avec @EnableScheduling, @Scheduled permet de programmer des tâches à un moment de la journée
+    // annotation standard/personnalisable permettant de dire d'exécuter cette fonction toutes les minutes
+    //@Scheduled(cron = "0 */1 * * * *")
+    // annotation permettant de dire d'exécuter cette fonction toutes les heures
+    @Scheduled(cron = "@hourly")
+    public void removeUselessJwt() {
+        log.info("Deletion of useless tokens at: {}", Instant.now());
+        this.jwtRepository.deleteAllByExpiredAndDeactivated(true, true);
+    }
+
+    public Map<String, String> refreshToken(Map<String, String> refreshTokenRequest) {
+        final Jwt jwt = this.jwtRepository.findByRefreshToken(refreshTokenRequest.get(REFRESH))
+                .orElseThrow(() -> new RuntimeException("Unknown token"));
+
+        // Si l'attribut expired est vrai ou que la date d'expiration est dépassé,
+        // on dit que le token n'est plus valide pour de bon
+        if(jwt.getRefreshToken().isExpired() || jwt.getRefreshToken().getExpiredAt().isBefore(Instant.now())) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        // On génère un nouveau bearer et refresh
+        return this.generate(jwt.getUser().getEmail());
     }
 }

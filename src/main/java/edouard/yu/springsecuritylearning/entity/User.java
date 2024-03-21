@@ -25,7 +25,7 @@ public class User implements UserDetails /* un utilisateur qui contient des él�
     private String password;
     private String username;
     private String email;
-    private boolean enable = false;
+    private boolean enabled = false;
     @OneToOne(cascade = CascadeType.ALL)
     private Role role;
 
@@ -49,21 +49,21 @@ public class User implements UserDetails /* un utilisateur qui contient des él�
 
     @Override
     public boolean isAccountNonExpired() { // est-ce que le compte a expiré
-        return this.enable;
+        return this.enabled;
     }
 
     @Override
     public boolean isAccountNonLocked() { // est-ce que le compte est bloqué
-        return this.enable;
+        return this.enabled;
     }
 
     @Override
     public boolean isCredentialsNonExpired() { // est-ce que les informations d'identification ont expiré
-        return this.enable;
+        return this.enabled;
     }
 
     @Override
     public boolean isEnabled() { // est-ce que le compte est actif
-        return this.enable;
+        return this.enabled;
     }
 }

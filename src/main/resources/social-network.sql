@@ -18,7 +18,7 @@ CREATE TABLE user (
 CREATE TABLE validation (
     id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP NOT NULL,
+    expired_at TIMESTAMP NOT NULL,
     activated_at TIMESTAMP,
     activation_code CHARACTER(6) NOT NULL,
     user_id INTEGER NOT NULL,
@@ -35,11 +35,25 @@ CREATE TABLE post (
     CONSTRAINT post_user_fk FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
+CREATE TABLE refresh_token (
+    id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    expired BOOLEAN NOT NULL DEFAULT FALSE,
+    value VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expired_at TIMESTAMP NOT NULL
+);
+
 CREATE TABLE jwt (
     id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     value VARCHAR(255) NOT NULL,
     deactivated BOOLEAN NOT NULL DEFAULT FALSE,
     expired BOOLEAN NOT NULL DEFAULT FALSE,
+    /*
+    refresh_token VARCHAR(255) NOT NULL,
+    refresh_token_expiration TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     */
+    refresh_token_id INTEGER NOT NULL,
+    CONSTRAINT refresh_token_fk FOREIGN KEY (refresh_token_id) REFERENCES refresh_token(id),
     user_id INTEGER NOT NULL,
     CONSTRAINT jwt_user_fk FOREIGN KEY (user_id) REFERENCES user(id)
 );

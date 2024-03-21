@@ -26,7 +26,7 @@ public class UserService implements UserDetailsService {
     private final ValidationService validationService;
     private final ValidationRepository validationRepository;
 
-    public void signup(UserDTO userDTO) {
+    public void signUp(UserDTO userDTO) {
         if(!EmailValidator.validEmail(userDTO.email())) {
             throw new RuntimeException("Invalid email");
         }
@@ -57,7 +57,7 @@ public class UserService implements UserDetailsService {
 
     public void activate(Map<String, String> activation) {
         Validation validation = this.validationService.findByActivationCode(activation.get("activationCode"));
-        if(Instant.now().isAfter(validation.getExpiresAt())) {
+        if(Instant.now().isAfter(validation.getExpiredAt())) {
             throw new RuntimeException("Expired activation code");
         }
 
@@ -67,7 +67,7 @@ public class UserService implements UserDetailsService {
             throw new AlreadyProcessedException("User already enabled");
         }
 
-        user.setEnable(true);
+        user.setEnabled(true);
         this.userRepository.save(user);
         validation.setActivatedAt(Instant.now());
         this.validationRepository.save(validation);

@@ -23,8 +23,8 @@ public class ValidationService {
         Instant createdAt = Instant.now();
         validation.setCreatedAt(createdAt);
 
-        Instant expiresAt = createdAt.plus(10, ChronoUnit.MINUTES);
-        validation.setExpiresAt(expiresAt);
+        Instant expiredAt = createdAt.plus(10, ChronoUnit.MINUTES);
+        validation.setExpiredAt(expiredAt);
 
         Random random = new Random();
         int randomInteger = random.nextInt(1_000_000);
