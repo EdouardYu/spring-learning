@@ -29,7 +29,19 @@ public class UserController {
         log.info("Successful registration"); // Il serra affiché dans le terminal, quand on fait appel à la méthode
     }
 
-    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseStatus(value = HttpStatus.OK)
+    @PostMapping(path = "password/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void resetPassword(@RequestBody Map<String, String> parameters) {
+        this.userService.resetPassword(parameters);
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @PostMapping(path = "password/new", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void newPassword(@RequestBody Map<String, String> parameters) {
+        this.userService.newPassword(parameters);
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
     @PostMapping(path = "activate", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void activate(@RequestBody Map<String, String> activation) { // On peut récupérer le body avec une Map ou un JsonNode à la place d'un DTO pour aller plus vite, mais c'est déconseillé
         this.userService.activate(activation);

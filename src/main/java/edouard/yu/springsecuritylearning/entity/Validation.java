@@ -26,6 +26,6 @@ public class Validation {
     private Instant activatedAt;
     @Column(name = "activation_code")
     private String activationCode;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH})
     private User user;
 }

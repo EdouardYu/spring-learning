@@ -34,7 +34,7 @@ public class ApplicationSecurityConfiguration /* extends WebSecurityConfiguratio
         // On désactive la sécurité CSRF (Cross-Site Request Forgery : falsification de requête inter-site).
         // Une vulnérabilité CSRF est une faille qui permet à un attaquant d'abuser à la fois d'un utilisateur, d'un navigateur web et d'un serveur.
         // Ainsi, en désactivant la partie CSRF, on accepte toutes les requêtes qui ne sont pas du nom de domaine et de même port que celui de l'application
-        // On autorise ensuite, uniquement les requêtes POST qui ont un endpoint /signup, /activate ou /signin
+        // On autorise ensuite, uniquement les requêtes POST qui ont un endpoint /signup, /activate, /signin, /token/refresh, /password/reset ou /password/new
         // Sinon pour toutes autres requêtes, il faut être authentifié
         // Pour s'authentifier, on utilise le token JWT généré grâce à la requête /signin et on va la filtrer grâce à un ensemble de filtres
         // afin de permettre l'utilisation de ce JWT pour authentifier l'utilisateur
@@ -47,6 +47,8 @@ public class ApplicationSecurityConfiguration /* extends WebSecurityConfiguratio
                                 .requestMatchers(HttpMethod.POST, "/activate").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/signin").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/token/refresh").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/password/reset").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/password/new").permitAll()
                                 .anyRequest().authenticated()
                 ).sessionManagement(httpSecuritySessionManagementConfigurer -> // Comme spring security fonctionne par session,
                          // on ajoute une session qu'on va configurer afin de pouvoir s'en servir pour authentifier, à notre manière, l'utilisateur afin qu'il puisse accéder aux autres endpoints

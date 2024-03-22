@@ -4,12 +4,17 @@ import edouard.yu.springsecuritylearning.entity.User;
 import edouard.yu.springsecuritylearning.entity.Validation;
 import edouard.yu.springsecuritylearning.repository.ValidationRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
+@Slf4j
+@Transactional
 @AllArgsConstructor
 @Service
 public class ValidationService {
@@ -37,5 +42,11 @@ public class ValidationService {
 
     public Validation findByActivationCode(String activationCode) {
         return this.validationRepository.findByActivationCode(activationCode).orElseThrow(() -> new RuntimeException("Invalid activation code"));
+    }
+
+    @Scheduled(cron = "@hourly")
+    public void removeExpiredActivationCode() {
+        log.info("Deletion of expired activation codes at: {}", Instant.now());
+        this.validationRepository.deleteAllByExpiredAtBefore(Instant.now());
     }
 }

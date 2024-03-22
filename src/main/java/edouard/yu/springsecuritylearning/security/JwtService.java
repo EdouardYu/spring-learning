@@ -183,12 +183,12 @@ public class JwtService {
 
     public Map<String, String> refreshToken(Map<String, String> refreshTokenRequest) {
         final Jwt jwt = this.jwtRepository.findByRefreshToken(refreshTokenRequest.get(REFRESH))
-                .orElseThrow(() -> new RuntimeException("Unknown token"));
+                .orElseThrow(() -> new RuntimeException("Unknown refresh token"));
 
         // Si l'attribut expired est vrai ou que la date d'expiration est dépassé,
         // on dit que le token n'est plus valide pour de bon
         if(jwt.getRefreshToken().isExpired() || jwt.getRefreshToken().getExpiredAt().isBefore(Instant.now())) {
-            throw new RuntimeException("Invalid token");
+            throw new RuntimeException("Invalid refresh token");
         }
 
         // On génère un nouveau bearer et refresh

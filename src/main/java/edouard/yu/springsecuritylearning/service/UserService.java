@@ -79,4 +79,23 @@ public class UserService implements UserDetailsService {
     public User loadUserByUsername(String email) {
         return this.userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    // Comme la méthode pour envoyer un code d'activation
+    public void resetPassword(Map<String, String> parameters) {
+        User user = this.loadUserByUsername(parameters.get("email"));
+        this.validationService.register(user);
+    }
+
+    public void newPassword(Map<String, String> parameters) {
+        User user = this.loadUserByUsername(parameters.get("email"));
+        Validation validation = validationService.findByActivationCode(parameters.get("activationCode"));
+
+        // Si l'utilisateur qui réinitialise le mot de passe est le même que celui de l'email,
+        // on modifie le mot de passe encrypté de la bdd
+        if(validation.getUser().getEmail().equals(user.getEmail())) {
+            String encryptedPassword = this.passwordEncoder.encode(parameters.get("password"));
+            user.setPassword(encryptedPassword);
+            this.userRepository.save(user);
+        }
+    }
 }
