@@ -1,19 +1,19 @@
 CREATE DATABASE social_network;
-
 CREATE TABLE role (
-    id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    label VARCHAR(15) NOT NULL DEFAULT 'USER'
+                      id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+                      label VARCHAR(15) NOT NULL DEFAULT 'USER'
 );
 
 CREATE TABLE user (
-    id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    password VARCHAR(255) NOT NULL,
-    username VARCHAR(15) UNIQUE NOT NULL,
-    email VARCHAR(127) UNIQUE NOT NULL,
-    enabled BOOLEAN NOT NULL DEFAULT FALSE,
-    role_id INTEGER NOT NULL,
-    CONSTRAINT role_fk FOREIGN KEY (role_id) REFERENCES role(id)
+                      id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+                      password VARCHAR(255) NOT NULL,
+                      username VARCHAR(15) UNIQUE NOT NULL,
+                      email VARCHAR(127) UNIQUE NOT NULL,
+                      enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                      role_id INTEGER NOT NULL,
+                      CONSTRAINT role_fk FOREIGN KEY (role_id) REFERENCES role(id)
 );
+
 
 CREATE TABLE validation (
     id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
