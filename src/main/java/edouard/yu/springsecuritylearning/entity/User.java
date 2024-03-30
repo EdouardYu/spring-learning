@@ -1,17 +1,15 @@
 package edouard.yu.springsecuritylearning.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+//import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+//import java.util.Collections;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -34,7 +32,9 @@ public class User implements UserDetails /* un utilisateur qui contient des él�
         // On retourne une liste de rôle de l'utilisateur
         // rem : singletonList est une liste immuable serializable avec seulement et toujours qu'un élément
         // rem : il faut toujours préfixer par le mot ROLE_ dans un SimpleGrantedAuthority pour faire comprendre à spring que c'est un rôle
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.getLabel()));
+        //return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.getLabel()));
+
+        return this.role.getLabel().getAuthorities();
     }
 
     @Override

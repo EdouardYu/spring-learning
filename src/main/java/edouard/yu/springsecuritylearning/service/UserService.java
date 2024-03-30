@@ -5,6 +5,7 @@ import edouard.yu.springsecuritylearning.entity.Role;
 import edouard.yu.springsecuritylearning.entity.User;
 import edouard.yu.springsecuritylearning.entity.Validation;
 import edouard.yu.springsecuritylearning.exception.AlreadyProcessedException;
+import edouard.yu.springsecuritylearning.mapper.UserDTOMapper;
 import edouard.yu.springsecuritylearning.repository.UserRepository;
 import edouard.yu.springsecuritylearning.repository.ValidationRepository;
 import edouard.yu.springsecuritylearning.validator.EmailValidator;
@@ -17,10 +18,13 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @AllArgsConstructor
 @Service
 public class UserService implements UserDetailsService {
+    private final UserDTOMapper userDTOMapper;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final ValidationService validationService;
@@ -97,5 +101,10 @@ public class UserService implements UserDetailsService {
             user.setPassword(encryptedPassword);
             this.userRepository.save(user);
         }
+    }
+
+    public Stream<UserDTO> searchAll() {
+        return StreamSupport.stream(this.userRepository.findAll().spliterator(), false)
+                .map(this.userDTOMapper);
     }
 }

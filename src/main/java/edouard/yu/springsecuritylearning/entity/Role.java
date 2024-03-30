@@ -1,12 +1,10 @@
 package edouard.yu.springsecuritylearning.entity;
 
-import edouard.yu.springsecuritylearning.RoleType;
+import edouard.yu.springsecuritylearning.enumeration.RoleType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor

@@ -8,11 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Slf4j // annotation lombok permettant d'instancier un logger pour la classe
 @AllArgsConstructor
@@ -76,5 +78,16 @@ public class UserController {
     @PostMapping(path = "signout")
     public void signOut() {
         this.jwtService.signOut();
+    }
+
+    // Permission pour administrateur et manager seulement grâce au champ authority de UserDetails
+    // Fonctionne avec @EnableMethodSecurity dans ApplicationSecurityController
+    // Rem : il est plus judicieux de créer deux controllers, un AuthenticationController et un UserController
+    // qui contient les endpoints qui commencent avec /user pour séparer de l'authentification
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR_READ', 'MANAGER_READ')")
+    @ResponseStatus(value = HttpStatus.OK)
+    @GetMapping(path = "user", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Stream<UserDTO> searchAll() {
+        return this.userService.searchAll();
     }
 }

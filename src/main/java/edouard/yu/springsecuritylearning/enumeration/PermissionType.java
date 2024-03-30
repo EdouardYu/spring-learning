@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum AuthorityType {
+public enum PermissionType {
     ADMINISTRATOR_CREATE,
     ADMINISTRATOR_READ,
     ADMINISTRATOR_UPDATE,
@@ -19,7 +19,4 @@ public enum AuthorityType {
     USER_CREATE_POST,
     USER_READ,
     USER_UPDATE_POST
-    ;
-
-    private String label;
 }

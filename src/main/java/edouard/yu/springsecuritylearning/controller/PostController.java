@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.stream.Stream;
+
 @AllArgsConstructor
 @RestController // Controller pour gérer les API Rest
 @RequestMapping(path = "post")
@@ -17,5 +19,11 @@ public class PostController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public void create(@RequestBody PostDTO postDTO) {
         this.postService.create(postDTO);
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public Stream<PostDTO> searchAll() {
+        return this.postService.searchAll();
     }
 }

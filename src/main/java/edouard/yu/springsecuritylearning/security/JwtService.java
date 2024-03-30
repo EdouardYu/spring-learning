@@ -9,6 +9,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +43,7 @@ public class JwtService {
                 token,
                 false,
                 false
-        ).orElseThrow(() -> new RuntimeException("Invalid or unknown token"));
+        ).orElseThrow(() -> new SignatureException("Invalid or unknown token"));
     }
 
     // méthode permettant de retourner le token JWT à l'utilisateur quand il fait une requête /signin
