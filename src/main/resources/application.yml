@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: spring-actuator-learning
+  datasource:
+    url: jdbc:mysql://localhost:3306/spring_actuator_learning
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+server:
+  servlet:
+    context-path: /api
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    # à combiner avec executions dans le pom.xml pour afficher les informations du projet,
+    # on peut voir les informations dans http://localhost:8080/api/actuator/info
+    build:
+      enabled: true
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  application:
+    name: ${spring.application.name}
+    version: ${info.build.version}
+    maintainer:
+      name: Edouard Yu
+      email: yuedouard@gmail.com
