@@ -35,3 +35,9 @@ info:
     maintainer:
       name: Edouard Yu
       email: yuedouard@gmail.com
+
+logging:
+  level:
+    org:
+      springframework:
+        TRACE # DEBUG, INFO, WARN, ERROR, FATAL, OFF # TRACE est le plus verbeux et OFF est le moins verbeux, par défaut INFO
