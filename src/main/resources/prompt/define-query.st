@@ -1,0 +1,1 @@
+Expliques ce qu'est {query}.
